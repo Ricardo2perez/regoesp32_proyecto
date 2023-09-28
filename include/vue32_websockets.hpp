@@ -190,6 +190,9 @@ String getJsonSalidas(){
 	jsonDoc["LEDROJO_STATUS"] = digitalRead(RED);
 	jsonDoc["LEDVERDE_STATUS"] = digitalRead(GREEN);
 	serializeJson(jsonDoc, response);
+	Serial.println("*************************");
+	Serial.println(response);
+	Serial.println("*************************");
 	return response;
 }
  

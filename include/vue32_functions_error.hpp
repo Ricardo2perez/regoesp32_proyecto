@@ -88,15 +88,8 @@ void settingPines()
     digitalWrite(SAL_4, LOW);
     digitalWrite(ACT_1, LOW);
     digitalWrite(ACT_2, LOW);
-    if(ciclo){
-        enciendeLedAuto();
-    }else{
-        enciendeLedManual();
-    }
-   
-
-    
-
+    digitalWrite(RED, LOW);
+    digitalWrite(GREEN, LOW);
     log("[ INFO ] Salidas inicializadas");
 
     // pinMode(WIFILED, OUTPUT);
@@ -366,7 +359,9 @@ void timeSetup()
 
     if (time_ajuste)
     {
-        rtc.setTime(time_sc, time_mn, time_hr, time_dy, time_mt, time_yr);
+        // rtc.setTime(time_sc, time_mn, time_hr, time_dy, time_mt, time_yr);
+        //  rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+        rtc.adjust(DateTime(time_yr, time_mt, time_dy, time_hr, time_mn, time_sc));
         log("[ INFO ] RTC set OK");
         // datos desde el Internet
     }
@@ -384,7 +379,9 @@ void timeSetup()
         else
         {
             /* Si no hay conexión a WiFi - No Internet */
-            rtc.setTime(time_sc, time_mn, time_hr, time_dy, time_mt, time_yr);
+            // rtc.setTime(time_sc, time_mn, time_hr, time_dy, time_mt, time_yr);
+            //  rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+            rtc.adjust(DateTime(time_yr, time_mt, time_dy, time_hr, time_mn, time_sc));
             log("[ INFO ] RTC set OK");
         }
     }
@@ -422,12 +419,20 @@ String getDateTime()
     if (time_ajuste)
     { // Manual
         /* RTC */
-        dia = rtc.getDay();
-        mes = rtc.getMonth() + 1;
-        anio = rtc.getYear();
-        hora = rtc.getHour(true);
-        minuto = rtc.getMinute();
-        segundo = rtc.getSecond();
+
+        /* dia = rtc.getDay();
+         mes = rtc.getMonth() + 1;
+         anio = rtc.getYear();
+         hora = rtc.getHour(true);
+         minuto = rtc.getMinute();
+         segundo = rtc.getSecond();*/
+        DateTime now = rtc.now();
+        dia = now.day();
+        mes = now.month();
+        anio = now.year();
+        hora = now.hour();
+        minuto = now.minute();
+        segundo = now.second();
     }
     else
     { // Automatico
@@ -452,12 +457,20 @@ String getDateTime()
         else
         {
             /* RTC */
+            /*
             dia = rtc.getDay();
             mes = rtc.getMonth() + 1;
             anio = rtc.getYear();
             hora = rtc.getHour(true);
             minuto = rtc.getMinute();
-            segundo = rtc.getSecond();
+            segundo = rtc.getSecond();*/
+            DateTime now = rtc.now();
+            dia = now.day();
+            mes = now.month();
+            anio = now.year();
+            hora = now.hour();
+            minuto = now.minute();
+            segundo = now.second();
         }
     }
     sprintf(fecha, "%.2d-%.2d-%.4d %.2d:%.2d:%.2d", dia, mes, anio, hora, minuto, segundo);

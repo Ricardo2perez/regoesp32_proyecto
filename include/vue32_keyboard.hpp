@@ -19,9 +19,11 @@
 //-------------------------------------------
 BUTTON _last_button;
 uint32_t _button_statuses[6];
-long _current_millis ;
-long ultimaLecturaTeclado = 0 ;
-
+long _current_millis;
+long ultimaLecturaTeclado = 0;
+void singlePressed(BUTTON button);
+void longPressed(BUTTON button);
+void cambiaAccionador();
 
 //----------------------------------------------
 // Incicialización de variables para el teclado
@@ -53,7 +55,7 @@ void released(BUTTON button)
                 Serial.print((button + 1));
                 Serial.print("  tiempo pulsado: ");
                 Serial.println(pressed_millis);
-                setOnOffSingle(button+1);
+                singlePressed(button + 1);
             }
 
             _button_statuses[button] = 0;
@@ -66,7 +68,7 @@ void released(BUTTON button)
 //----------------------------------------------------
 void pressed(BUTTON button)
 {
-    
+
     button--;
     if (_button_statuses[button] == 0)
     {
@@ -83,8 +85,8 @@ void pressed(BUTTON button)
 void scanButtons()
 {
     long value = analogRead(36);
-    Serial.print("valor de la lectura analógica ");
-    Serial.println(value);
+    // Serial.print("valor de la lectura analógica ");
+    // Serial.println(value);
     double diff, minor_diff;
 
     minor_diff = abs(value - BS_ANALOG_PULLUP_VALUE);
@@ -134,7 +136,6 @@ void scanButtons()
     }
 }
 
-
 //---------------------------------------------
 // Verificación de larga pulsación botón y
 // llamada a la función de escaneo del teclado
@@ -142,7 +143,7 @@ void scanButtons()
 void tick()
 {
     //_current_millis = micros / 1000;
-    _current_millis =millis();
+    _current_millis = millis();
 
     // raise long-pressed events
     for (int b = 0; b < 6; b++)
@@ -157,12 +158,123 @@ void tick()
                 Serial.print(b + 1);
                 Serial.print("  tiempo pulsado: ");
                 Serial.println(pressed_millis);
-
                 _button_statuses[b] = 0;
+                longPressed(b + 1);
             }
         }
     }
 
     scanButtons();
-   
+}
+
+//---------------------------------------------
+// Pulsación Simple, activa salidas
+//---------------------------------------------
+void singlePressed(BUTTON button)
+{
+    int pulsador = button;
+    /* BUTTON_PULS1 = 1,
+    BUTTON_PULS2 = 2,
+    BUTTON_PULS3 = 3,
+    BUTTON_PULS4 = 4,
+    BUTTON_PULS5 = 5,*/
+    if (!ciclo)
+    {
+        switch (pulsador)
+        {
+        case BUTTON_PULS1:
+            setOnOffSingle(BUTTON_PULS1);
+            break;
+        case BUTTON_PULS2:
+            setOnOffSingle(BUTTON_PULS2);
+            break;
+        case BUTTON_PULS3:
+            setOnOffSingle(BUTTON_PULS3);
+            break;
+        case BUTTON_PULS4:
+            setOnOffSingle(BUTTON_PULS4);
+            break;
+        case BUTTON_PULS5:
+            cambiaAccionador();
+            break;
+
+        default:
+            cambioEstado = true;
+            break;
+        }
+    }
+}
+
+//---------------------------------------------
+// Pulsación larga, activa salidas
+//---------------------------------------------
+void longPressed(BUTTON button)
+{
+    int pulsador = button;
+    switch (pulsador)
+    {
+    case BUTTON_PULS1:
+        // Pendiente implementar
+        break;
+    case BUTTON_PULS2:
+        // pendiente implementar
+        break;
+    case BUTTON_PULS3:
+        // pendiente implementar
+        break;
+    case BUTTON_PULS4:
+        // pendiente implementar
+        break;
+    case BUTTON_PULS5:
+        if (ciclo)
+        {
+
+            ciclo = false;  // poner en manual
+            settingPines(); // apagar salidas
+            settingsSave();
+            enciendeLedManual();
+            cambioEstado = true;
+        }
+        else
+        {
+            ciclo = true; // poner en automatico
+            settingsSave();
+            enciendeLedAuto();
+            cambioEstado = true;
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+//---------------------------------------------
+// Pulsación Simple, Cambia el estado de los actuadores
+//---------------------------------------------
+
+void cambiaAccionador()
+{
+    switch (acciona)
+    {
+    case APAGADO:
+        setOffSingle(ACT_2);
+        setOnSingle(ACT_1);
+        acciona = ABRIR;
+        cambioEstado = true;
+        break;
+    case ABRIR:
+        setOffSingle(ACT_1);
+        setOnSingle(ACT_2);
+        acciona = CERRAR;
+        cambioEstado = true;
+        break;
+    case CERRAR:
+        setOffSingle(ACT_1);
+        setOffSingle(ACT_2);
+        acciona = APAGADO;
+        cambioEstado = true;
+        break;
+    default:
+        break;
+    }
 }

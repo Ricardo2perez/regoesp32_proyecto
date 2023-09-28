@@ -13,7 +13,6 @@
 */
 // -------------------------------------------------------------------
 
-
 // -------------------------------------------------------------------
 // Control de los Relay desde MQTT & WS
 // -------------------------------------------------------------------
@@ -33,55 +32,54 @@ void OnOffRelays(String command)
         log("[ INFO ] Commando por MQTT => " + command);
     }
     int pin = 99;
-
-    if (JsonDoc["output"] == "S1")
+    if (JsonDoc["output"] == "LR" && JsonDoc["value"])
     {
-        pin = SAL_1;
+        settingPines(); // apaga todas las salidas
+        ciclo = false;
+        enciendeLedManual();
+        settingsSave();
     }
-    else if (JsonDoc["output"] == "S2")
+    if (!ciclo)
     {
-        pin = SAL_2;
+        if (JsonDoc["output"] == "S1")
+        {
+            pin = SAL_1;
+        }
+        else if (JsonDoc["output"] == "S2")
+        {
+            pin = SAL_2;
+        }
+        else if (JsonDoc["output"] == "S3")
+        {
+            pin = SAL_3;
+        }
+        else if (JsonDoc["output"] == "S4")
+        {
+            pin = SAL_4;
+        }
+        else if (JsonDoc["output"] == "A1")
+        {
+            pin = ACT_1;
+        }
+        else if (JsonDoc["output"] == "A2")
+        {
+            pin = ACT_2;
+        }
+        if (JsonDoc["value"])
+        {
+            setOnSingle(pin);
+        }
+        else
+        {
+            setOffSingle(pin);
+        }
     }
-    else if (JsonDoc["output"] == "S3")
+    if (JsonDoc["output"] == "LR" && !JsonDoc["value"])
     {
-        pin = SAL_3;
+        ciclo = true;
+        settingsSave();
+        enciendeLedAuto();
     }
-    else if (JsonDoc["output"] == "S4")
-    {
-        pin = SAL_4;
-    }
-    else if (JsonDoc["output"] == "A1")
-    {
-        pin = ACT_1;
-    }
-    else if (JsonDoc["output"] == "A2")
-    {
-        pin = ACT_2;
-    }
-    else if (JsonDoc["output"] == "LV")
-    {
-        setOffSingle(RED);
-        pin = GREEN;
-        
-    }
-    else if (JsonDoc["output"] == "LR")
-    {
-        setOffSingle(GREEN);
-        pin = RED;
-        
-    }
-
-
-    if (JsonDoc["value"])
-    {
-        setOnSingle(pin);
-        
-    }
-    else
-    {
-        setOffSingle(pin);
-    }
-
     // guardar status en memoria spiffs
     // settingsSave();
 }

@@ -16,7 +16,7 @@
 bool ioBlink = false;
 unsigned long milOld;
 int rndTemp = 0;
-bool CambioEstado = false;
+bool cambioEstado = false;
 long ultimoEstado = 0;
 
 // -------------------------------------------------------------------
@@ -53,9 +53,6 @@ void setOnOffSingle(int _pin)
     case 4:
         _salida = SAL_4;
         break;
-    case 5:
-        _salida = ACT_1;
-        break;
     default:
         // statements
         break;
@@ -70,7 +67,7 @@ void setOnOffSingle(int _pin)
     {
         digitalWrite(_salida, LOW);
     }
-    CambioEstado = true;
+    cambioEstado = true;
 }
 // -------------------------------------------------------------------
 // Simple blinking function - Pestañeo para Alarmas tiempo variable
@@ -137,9 +134,27 @@ void blinkRandomSingle(int minTime, int maxTime, int _pin)
         }
     }
 }
-bool getCambioEstado(){
-    return CambioEstado;
+
+bool getCambioEstado()
+{
+    return cambioEstado;
 }
-void setCambioEstado(){
-    CambioEstado = false;
+
+void resetCambioEstado()
+{
+    cambioEstado = false;
+}
+
+void enciendeLedAuto()
+{
+    setOffSingle(RED);
+    setOnSingle(GREEN);
+    cambioEstado = true;
+}
+
+void enciendeLedManual()
+{
+    setOffSingle(GREEN);
+    setOnSingle(RED);
+    cambioEstado = true;
 }

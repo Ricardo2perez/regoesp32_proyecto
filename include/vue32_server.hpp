@@ -46,6 +46,7 @@ AsyncEventSource events("/events");
 // /api/action                    POST
 // /api/valoresth                 GET
 // /api/valoresth                 POST
+// /api/ajustesth                 GET
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
 // Método PUT Actualizar configuraciones WiFi
@@ -661,6 +662,18 @@ void handleTemperatureJS(AsyncWebServerRequest *request)
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
 }
+// ---------------------------------------------------------------------------------------
+// Manejo de los Archivos del Servidor Web ajustesth.js consignas de temperatura y humedad
+// ---------------------------------------------------------------------------------------
+void handleAjustesTHJS(AsyncWebServerRequest *request)
+{
+    if (!request->authenticate(device_old_user, device_old_password))
+        return request->requestAuthentication();
+    const char *dataType = "application/javascript";
+    AsyncWebServerResponse *response = request->beginResponse_P(200, dataType, ajustesth_js, ajustesth_js_length);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+}
 // -------------------------------------------------------------------
 // Manejo de los Archivos del Servidor Web Error404.js
 // -------------------------------------------------------------------
@@ -845,14 +858,14 @@ void putRequestAction(AsyncWebServerRequest *request, uint8_t *data, size_t len,
     (doc["LEDROJO_STATUS"].as<boolean>()) ? setOnSingle(RED) : setOffSingle(RED);
 
     // Save Settings.json
-    //if (settingsSave())
-    if(true)
+    // if (settingsSave())
+    if (true)
     {
         request->send(200, dataType, "{ \"save\": true }");
         log("[ INFO ] Action Set OK");
         // Esperar la Transmisión de los datos seriales
         Serial.flush();
-        //ESP.restart();
+        // ESP.restart();
     }
     else
     {
@@ -936,6 +949,60 @@ void putRequestValoresth(AsyncWebServerRequest *request, uint8_t *data, size_t l
         request->send(500, dataType, "{ \"save\": false }");
     }
 }
+// -------------------------------------------------------------------
+// Método PUT Valoresth
+// -------------------------------------------------------------------
+void putRequestAjustesth(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+{
+    if (!request->authenticate(device_old_user, device_old_password))
+        return request->requestAuthentication();
+
+    const char *dataType = "application/json";
+
+    String bodyContent = GetBodyContent(data, len);
+
+    StaticJsonDocument<520> doc;
+
+    DeserializationError error = deserializeJson(doc, bodyContent);
+    if (error)
+    {
+        request->send(400, dataType, "{ \"status\": \"Error de JSON enviado\" }");
+        return;
+    };
+    // -------------------------------------------------------------------
+    // Relay settings.json
+    // -------------------------------------------------------------------
+    String s = bodyContent;
+    log("================================================");
+    log(bodyContent);
+    log("==============================================");
+
+    // Valor temperatura para abrir trampilla
+    TEMP_CONEXION = (doc["temperatura_conexion"].as<String>()).toInt();
+
+    // Valor temperatura para cerrar trampilla
+    TEMP_DESCONEXION = (doc["temperatura_desconexion"].as<String>()).toInt();
+
+    // Valor temperatura para abrir electroválvula
+    HUMEDAD_CONEXION = (doc["humedad_conexion"].as<String>()).toInt();
+
+    // Valor temperatura para cerrar electroválvula
+    HUMEDAD_DESCONEXION = (doc["humedad_desconexion"].as<String>()).toInt();
+
+    // Save Settings.json
+    if (settingsSave())
+    {
+        request->send(200, dataType, "{ \"save\": true }");
+        log("[ INFO ] Action Set OK");
+        // Esperar la Transmisión de los datos seriales
+        Serial.flush();
+        ESP.restart();
+    }
+    else
+    {
+        request->send(500, dataType, "{ \"save\": false }");
+    }
+}
 // putRequestSalidas
 
 void InitServer()
@@ -963,6 +1030,7 @@ void InitServer()
     // /api/action                    GET
     // /api/action                    POST
     // /api/valoresth                 GET
+    // /api/ajustesth                 GET
     // -------------------------------------------------------------------
 
     // -------------------------------------------------------------------
@@ -1003,7 +1071,8 @@ void InitServer()
                 json += ",\"wifi_mac\": \""+ String(WiFi.macAddress()) +"\"";
         wifi_mode == WIFI_STA ? json += ",\"wifi_mode\": \"Cliente\"" : json += ",\"wifi_mode\": \"AP\"";
         WiFi.status() == WL_CONNECTED ? json += ",\"wifi_rssi\":"+ String(WiFi.RSSI()) : json += ",\"wifi_rssi\": 0";
-        WiFi.status() == WL_CONNECTED ? json += ",\"wifi_signal\":"+ String(getRSSIasQuality(WiFi.RSSI())) : json += ",\"wifi_signal\": 0";     
+        WiFi.status() == WL_CONNECTED ? json += ",\"wifi_signal\":"+ String(getRSSIasQuality(WiFi.RSSI())) : json += ",\"wifi_signal\": 0"; 
+        ciclo == true ? json += ",\"ciclo\": \"Automatico\"" : json += ",\"ciclo\": \"Manual\""; 
             json += "},"; 
         json += "\"code\": 1 ";
         json += "}";
@@ -1274,14 +1343,7 @@ void InitServer()
         json += "\"code\": 1 ";
         json += "}";    
         request->send(200, dataType, json); });
-    /* SALIDA1_STATUS: false,
-                SALIDA2_STATUS: false,
-                SALIDA3_STATUS: false,
-                SALIDA4_STATUS: false,
-                ACTUADOR1_STATUS: false,
-                ACTUADOR2_STATUS: false,
-                LEDVERDE_STATUS: false,
-                LEDROJO_STATUS: false,*/
+
     // -------------------------------------------------------------------
     // Parámetros de Configuración de las acciones
     // url: /api/temperature
@@ -1289,8 +1351,8 @@ void InitServer()
     // -------------------------------------------------------------------
     server.on("/api/valoresth", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-    /*  if(!request->authenticate(device_old_user, device_old_password)) 
-            return request->requestAuthentication();  */      
+     if(!request->authenticate(device_old_user, device_old_password)) 
+            return request->requestAuthentication();       
         const char* dataType = "application/json"; 
         String json = "";
         json = "{";
@@ -1315,6 +1377,30 @@ void InitServer()
         request->send(200, dataType, json); });
 
     // -------------------------------------------------------------------
+    // Parámetros de Configuración de las acciones
+    // url: /api/ajustesth
+    // Método: GET
+    // -------------------------------------------------------------------
+    server.on("/api/ajustesth", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+    /*if(!request->authenticate(device_old_user, device_old_password)) 
+            return request->requestAuthentication();  */
+        const char* dataType = "application/json"; 
+        String json = "";
+        json = "{";
+        json += "\"meta\": { \"serial\": \"" + deviceID() + "\"},";
+        json += "\"data\":";
+            json += "{";       
+            json += "\"temperatura_conexion\":"+ String(TEMP_CONEXION);
+            json += ",\"temperatura_desconexion\":"+ String(TEMP_DESCONEXION);
+            json += ",\"humedad_conexion\":"+ String(HUMEDAD_CONEXION);
+            json += ",\"humedad_desconexion\":"+ String(HUMEDAD_DESCONEXION);
+            json += "},";  
+        json += "\"code\": 1 ";
+        json += "}";    
+        request->send(200, dataType, json); });
+
+    // -------------------------------------------------------------------
     // Parámetros de Configuración del Tiempo guardar cambios
     // url: /api/time
     // Método: POST
@@ -1328,6 +1414,13 @@ void InitServer()
     // -------------------------------------------------------------------
     server.on(
         "/api/valoresth", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, putRequestValoresth);
+    // -------------------------------------------------------------------
+    // Parámetros de Configuración de los valores de regulación de las temperaturas y humedades
+    // url: /api/ajustesth
+    // Método: POST
+    // -------------------------------------------------------------------
+    server.on(
+        "/api/ajustesth", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, putRequestAjustesth);
     // -------------------------------------------------------------------
     // Activa y desactiva salidas desde la api
     // url: /api/action
@@ -1375,6 +1468,10 @@ void InitServer()
     // Cargar de Archivos complementarios ./js/temperature.js
     // -------------------------------------------------------------------
     server.on("/js/temperature.js", HTTP_GET, handleTemperatureJS);
+    // -------------------------------------------------------------------
+    // Cargar de Archivos complementarios ./js/ajustesth.js
+    // -------------------------------------------------------------------
+    server.on("/js/ajustesth.js", HTTP_GET, handleAjustesTHJS);
     // -------------------------------------------------------------------
     // Cargar de Archivos complementarios ./js/page404.js
     // -------------------------------------------------------------------

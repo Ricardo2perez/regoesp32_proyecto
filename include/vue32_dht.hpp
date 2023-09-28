@@ -55,7 +55,7 @@ String getJsonDht()
         //------------------------------------
         //    Medida de humedad del suelo
         //------------------------------------
-        hs1 = analogRead(IN_2);
+        hs1 = analogRead(IN_1);
 
         HUM_SUE = map(hs1, 1780, 1300, 0, 100);
         // Evitar valores negativos y por encima de 100

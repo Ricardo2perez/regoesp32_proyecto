@@ -33,6 +33,8 @@
 // Librerías para pantalla OLED
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
+// Librería para el PCF8523 RTC de Adafruit
+#include "RTClib.h"
 // -------------------------------------------------------------------
 // Archivos *.hpp - Fragmentar el Código
 // -------------------------------------------------------------------
@@ -48,9 +50,7 @@
 #include "vue32_dht.hpp"
 #include "vue32_oled.hpp"
 #include "vue32_keyboard.hpp"
-//#include "vue32_LedBlink.hpp"
-//#include "bot.h"
-//#include "Escornabot.h"
+#include "vue32_regulacion.hpp"
 
 // instance
 
@@ -80,7 +80,7 @@ void setup()
     while (true)
       ;
   }
-  
+
   // Leer el Archivo settings.json
   if (!settingsRead())
   {
@@ -94,7 +94,7 @@ void setup()
   wifi_setup();
   // setup del Time
   timeSetup();
-  
+
   // Inicializacion del Servidor WEB
   InitServer();
   // Inicializamos el WS
@@ -103,8 +103,9 @@ void setup()
   setupPinRestore();
   // Init dht
   setupDht();
-  // Init teclado  
+  // Init teclado
   setupKeyboard();
+
   
   // Fin del Setup
 
@@ -174,33 +175,48 @@ void loop()
     ultimaLecturaDht = millis();
     getJsonDht();
     log(getJsonTemperature());
-    WsMessage(getJsonTemperature(), "", "");    
+    WsMessage(getJsonTemperature(), "", "");
     oledMuestraDatos();
   }
 
   //------------------------------------------------------------------
   // Cuando se produce un cambio de estado de una salida lo pasa
   // por websocket a la aplicación web
-  //----------------------------------------------------------------- 
+  //-----------------------------------------------------------------
   if (millis() - ultimoEstado > 5000)
   {
+    //WsMessage(getJsonSalidas(), "", "");
     ultimoEstado = millis();
-    if(getCambioEstado()){
-    WsMessage(getJsonSalidas(), "", "");
-    setCambioEstado();
+    if (getCambioEstado())
+    {
+      WsMessage(getJsonSalidas(), "", "");
+      resetCambioEstado();
     }
-   
   }
 
-//
+  //
   // -------------------------------------------------------------------
   // Monitorear la Interrupción del Pin 33
   // -------------------------------------------------------------------
-  //resetIntLoop();
- if (millis() - ultimaLecturaTeclado > 1000)
+  // resetIntLoop();
+
+  //----------------------------------------------------------------
+  // Monitorea el teclado cada 1s
+  //------------------------------------------------------------------
+  if (millis() - ultimaLecturaTeclado > 1000)
   {
     ultimaLecturaTeclado = millis();
     tick();
   }
-   
+  //----------------------------------------------------------------
+  // Monitorea el teclado cada 1s
+  //------------------------------------------------------------------
+  if (ciclo){
+  if (millis() - tickRegulacion > 1000)
+  {
+    tickRegulacion = millis();
+    controlActuadores();
+    controlElectrovavulas();
+  }
+  }
 }

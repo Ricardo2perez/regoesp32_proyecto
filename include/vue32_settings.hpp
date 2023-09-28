@@ -106,6 +106,16 @@ boolean settingsRead()
         HUM_SUE4_OFFS = jsonSettings["HUM_SUE4_OFFS"].as<int>();
 
         // -------------------------------------------------------------------
+        // Valores de consigna de temperatura y humedad settings.json
+        // -------------------------------------------------------------------
+
+        TEMP_CONEXION = jsonSettings["TEMP_CONEXION"].as<int>();
+        TEMP_DESCONEXION = jsonSettings["TEMP_DESCONEXION"].as<int>();
+        HUMEDAD_CONEXION = jsonSettings["HUMEDAD_CONEXION"].as<int>();
+        HUMEDAD_DESCONEXION = jsonSettings["HUMEDAD_DESCONEXION"].as<int>();
+
+
+        // -------------------------------------------------------------------
         // Teclado settings.json
         // -------------------------------------------------------------------
 
@@ -118,8 +128,14 @@ boolean settingsRead()
         BUTTON_MIN_PRESSED = jsonSettings["BUTTON_MIN_PRESSED"].as<int>();
         BUTTON_LONG_PRESSED = jsonSettings["BUTTON_LONG_PRESSED"].as<int>();
 
+        // -------------------------------------------------------------------
+        // Ciclo de trabajo
+        // -------------------------------------------------------------------
+        ciclo = jsonSettings["ciclo"].as<boolean>();
+        
         file.close();
         log("[ INFO ] Lectura de las configuraciones correcta");
+        Serial.println(ciclo);
         return true;
     }
 }
@@ -136,27 +152,31 @@ void settingsReset()
     strlcpy(device_id, "adminvue32", sizeof(device_id));
     strlcpy(device_old_user, "admin", sizeof(device_old_user));
     strlcpy(device_old_password, "admin", sizeof(device_old_password));
+    
     // -------------------------------------------------------------------
     // WIFI Cliente settings.json
     // -------------------------------------------------------------------
+    //wifi_ip_static = true;
     wifi_ip_static = false;
-    strlcpy(wifi_ssid, "miWifi", sizeof(wifi_ssid));
-    strlcpy(wifi_password, "MiContraseña", sizeof(wifi_password));
+    strlcpy(wifi_ssid, "X_D48C", sizeof(wifi_ssid));
+    strlcpy(wifi_password, "X2020", sizeof(wifi_password));
     strlcpy(wifi_ipv4, "192.168.31.240", sizeof(wifi_ipv4));
     strlcpy(wifi_subnet, "255.255.255.0", sizeof(wifi_subnet));
     strlcpy(wifi_gateway, "192.168.31.1", sizeof(wifi_gateway));
     strlcpy(wifi_dns_primary, "8.8.8.8", sizeof(wifi_dns_primary));
     strlcpy(wifi_dns_secondary, "8.8.4.4", sizeof(wifi_dns_secondary));
+    
     // -------------------------------------------------------------------
     // WIFI AP settings.json
     // -------------------------------------------------------------------
-    ap_mode = false; // original
-    //ap_mode = true;
+    //ap_mode = false; // original
+    ap_mode = true;
     strlcpy(ap_ssid, deviceID().c_str(), sizeof(ap_ssid));
     strlcpy(ap_password, "adminVUE32", sizeof(ap_password));
     ap_visibility = false;
     ap_chanel = 9;
     ap_connect = 4;
+    
     // -------------------------------------------------------------------
     // Cloud settings.json
     // -------------------------------------------------------------------
@@ -210,6 +230,19 @@ void settingsReset()
     BS_ANALOG_PULLUP_VALUE = 4095; // valor de lectura analógica sin pulsar ninguna tecla Valor 4095
     BUTTON_MIN_PRESSED = 30;       // Tiempo mínimo de pulsación del botón
     BUTTON_LONG_PRESSED = 3000;    // Tiempo pulsado para que sea larga pulsación
+
+    // ------------------------------------------------------------------------
+    // Valores ajustes regulación settings.json
+    //-------------------------------------------------------------------------
+    TEMP_CONEXION = 28;       // valor de temperatura para apertura trampilla
+    TEMP_DESCONEXION = 20;    // valor de temperatura para cierre de la trampilla
+    HUMEDAD_CONEXION = 30;    // valor humedad para conexión electroválvula
+    HUMEDAD_DESCONEXION = 80; // valor humedad para conexión electroválvula
+
+    // ------------------------------------------------------------------------
+    // Ciclo Automatico/Manual True/False
+    // ------------------------------------------------------------------------
+    ciclo = false;
 
     log("[ INFO ] Se reiniciaron todos los valores por defecto");
 }
@@ -303,6 +336,20 @@ boolean settingsSave()
         jsonSettings["BS_ANALOG_PULLUP_VALUE"] = BS_ANALOG_PULLUP_VALUE;
         jsonSettings["BUTTON_MIN_PRESSED"] = BUTTON_MIN_PRESSED;
         jsonSettings["BUTTON_LONG_PRESSED"] = BUTTON_LONG_PRESSED;
+
+        // ------------------------------------------------------------------------
+        // Valores ajustes regulación settings.json
+        //-------------------------------------------------------------------------
+        jsonSettings["TEMP_CONEXION"] = TEMP_CONEXION;
+        jsonSettings["TEMP_DESCONEXION"] = TEMP_DESCONEXION;
+        jsonSettings["HUMEDAD_CONEXION"] = HUMEDAD_CONEXION;
+        jsonSettings["HUMEDAD_DESCONEXION"] = HUMEDAD_DESCONEXION;
+
+        // ------------------------------------------------------------------------
+        // Valores ciclo de trabajo settings.json
+        //-------------------------------------------------------------------------
+
+        jsonSettings["ciclo"] = ciclo;
 
 
         serializeJsonPretty(jsonSettings, file);

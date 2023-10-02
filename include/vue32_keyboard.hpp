@@ -214,7 +214,15 @@ void longPressed(BUTTON button)
     switch (pulsador)
     {
     case BUTTON_PULS1:
-        // Pendiente implementar
+        settingsReset();
+        // guardamos en spiffs
+        if (settingsSave())
+        {
+            log("[ INFO ] Todos los datos a fábrica por interrupción");
+            // Esperar la Transmisión de los datos seriales
+            Serial.flush();
+            ESP.restart();
+        }
         break;
     case BUTTON_PULS2:
         // pendiente implementar

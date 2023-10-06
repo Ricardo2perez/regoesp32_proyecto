@@ -1,17 +1,42 @@
-#include <Arduino.h>
+// vue32_relays.hpp
 
-// -------------------------------------------------------------------
-// Estructura de un Relay
-/*
-@PIN            ->  Se define el pin del ESP32 Ejemplo: GPIO2 - 2
-@LOGICA         ->  Se define la logica del PIN / 0 - Normal, 1 - Invertida
-    Normal      - On(1) -> cerrar, Off(0) -> abrir
-    Invertida   - On(1) -> abrir,  Off(0) -> cerrar
-@MODE           ->  Se define el modo de trabajo del PIN si es de Entrada(INPUT) o Salida(OUTPUT)
-@NAME           ->  Se define NOMBRE DEL PIN
-@DESCRIPTION    ->  Se define LA DESCRIPCIÓN / USO DEL PIN
-*/
-// -------------------------------------------------------------------
+/* -------------------------------------------------------------------
+   ReGo V4 
+     Programado por: ricardo2perez@gmail.com
+     Proyecto hardware: https://github.com/xdesig/ReGo
+ --------------------------------------------------------------------
+
+  Proyecto basado en el trabajo realizado por:
+    AdminESP - ElectronicIOT 2022
+    Sitio WEB: https://electroniciot.com
+    Correo: admin@electroniciot.com
+    Plataforma: ESP32
+    Framework:  Arduino
+    Proyecto: Panel Administrativo para el ESP32 con Vue.js
+    Nombre: VUE32 Admin Tool
+    Autor: Ing. Yamir Hidalgo Peña
+-------------------------------------------------------------------
+
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+ USA.
+
+  See LICENSE.txt for details
+  */
+
+#include <Arduino.h>
 
 // -------------------------------------------------------------------
 // Control de los Relay desde MQTT & WS
@@ -80,6 +105,5 @@ void OnOffRelays(String command)
         settingsSave();
         enciendeLedAuto();
     }
-    // guardar status en memoria spiffs
-    // settingsSave();
+    
 }

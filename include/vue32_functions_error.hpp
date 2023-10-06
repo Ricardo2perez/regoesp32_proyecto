@@ -1,15 +1,41 @@
+// vue32_functions_error.hpp
+
 /* -------------------------------------------------------------------
- * AdminESP - ElectronicIOT 2022
- * Sitio WEB: https://electroniciot.com
- * Correo: admin@electroniciot.com
- * Cel_WSP: +591 71243395
- * Plataforma: ESP32
- * Framework:  Arduino
- * Proyecto: Panel Administrativo para el ESP32 con Vue.js
- * Nombre: VUE32 Admin Tool
- * Autor: Ing. Yamir Hidalgo Peña
- * -------------------------------------------------------------------
- */
+   ReGo V4 
+     Programado por: ricardo2perez@gmail.com
+     Proyecto hardware: https://github.com/xdesig/ReGo
+ --------------------------------------------------------------------
+
+  Proyecto basado en el trabajo realizado por:
+    AdminESP - ElectronicIOT 2022
+    Sitio WEB: https://electroniciot.com
+    Correo: admin@electroniciot.com
+    Plataforma: ESP32
+    Framework:  Arduino
+    Proyecto: Panel Administrativo para el ESP32 con Vue.js
+    Nombre: VUE32 Admin Tool
+    Autor: Ing. Yamir Hidalgo Peña
+-------------------------------------------------------------------
+
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+ USA.
+
+  See LICENSE.txt for details
+  */
+
 
 #include "vue32_LedBlink.hpp"
 

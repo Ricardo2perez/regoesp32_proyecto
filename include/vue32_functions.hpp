@@ -484,7 +484,7 @@ String getDateTime()
             // RTC PCF8523
             
             dia = now.day();
-            mes = now.month() + 1;
+            mes = now.month();
             anio = now.year();
             hora = now.hour();
             minuto =now.minute();

@@ -160,8 +160,8 @@ size_t content_len;
 // Zona Time
 // -------------------------------------------------------------------
 ESP32Time rtc; // Clase ESP32Time
-// RTC_PCF8523 rtc;
-bool time_ajuste;     // 1 - Manual - 0 - Automático internet SRV NTP
+RTC_PCF8523 rtc8523;
+int time_ajuste;     // 2- PCF8523 1- Manual  0- Automático internet SRV NTP
 char time_date[18];   // 2023-09-07T23:47
 long time_z_horaria;  // Zona Horaria GMT 0 = 0 - GMT +1/4 = 3600*4 - GMT -1 = -3600
 char time_server[39]; // Servidor NTP Ejemplo: time.nist.gov

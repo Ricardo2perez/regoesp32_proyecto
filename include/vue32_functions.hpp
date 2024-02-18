@@ -389,30 +389,63 @@ void timeSetup()
 
     setDyMsYr();
 
-    if (time_ajuste)
-    {
-        rtc.setTime(time_sc, time_mn, time_hr, time_dy, time_mt, time_yr);
-        log("[ INFO ] RTC set OK");
-        // datos desde el Internet
-    }
-    else
-    {
-        if ((WiFi.status() == WL_CONNECTED) && (wifi_mode == WIFI_STA))
-        {
-            /* WiFi Conectada */
-            ntpClient.begin();
-            ntpClient.setPoolServerName(time_server);
-            ntpClient.setTimeOffset(time_z_horaria);
-            ntpClient.update();
-            log("[ INFO ] NTP set OK");
-        }
-        else
-        {
-            /* Si no hay conexión a WiFi - No Internet */
+    switch (time_ajuste) {
+        case 2:
+            if (! rtc8523.initialized() || rtc8523.lostPower()) {
+            Serial.println("RTC is NOT initialized, let's set the time!");
+            // When time needs to be set on a new device, or after a power loss, the
+            // following line sets the RTC to the date & time this sketch was compiled
+            rtc8523.adjust(DateTime(F(__DATE__), F(__TIME__)));
+            // This line sets the RTC with an explicit date & time, for example to set
+            // January 21, 2014 at 3am you would call:
+            // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+            //
+            // Note: allow 2 seconds after inserting battery or applying external power
+            // without battery before calling adjust(). This gives the PCF8523's
+            // crystal oscillator time to stabilize. If you call adjust() very quickly
+            // after the RTC is powered, lostPower() may still return true.
+            }
+            else{
+            rtc8523.adjust(DateTime(time_yr, time_mt, time_dy, time_hr, time_mn, time_sc));
+            }
+            rtc8523.start();
+            
+            log("[ INFO ] RTC PCF8523 set OK");
+            // datos desde el Internet
+       
+        break;
+        case 1:
             rtc.setTime(time_sc, time_mn, time_hr, time_dy, time_mt, time_yr);
             log("[ INFO ] RTC set OK");
-        }
+        
+        break;
+        
+        case 0:
+            if ((WiFi.status() == WL_CONNECTED) && (wifi_mode == WIFI_STA))
+            {
+                /* WiFi Conectada */
+                ntpClient.begin();
+                ntpClient.setPoolServerName(time_server);
+                ntpClient.setTimeOffset(time_z_horaria);
+                ntpClient.update();
+                log("[ INFO ] NTP set OK");
+            }
+            else
+            {
+                /* Si no hay conexión a WiFi - No Internet */
+                rtc.setTime(time_sc, time_mn, time_hr, time_dy, time_mt, time_yr);
+                log("[ INFO ] RTC set OK");
+                rtc8523.adjust(DateTime(time_yr, time_mt, time_dy, time_hr, time_mn, time_sc));
+                rtc8523.start();
+                log("[ INFO ] RTC PCF8523 set OK");
+                
+            }
+        
+        break;
+  
     }
+
+
 }
 
 // -------------------------------------------------------------------
@@ -443,39 +476,23 @@ String getDateTime()
     int hora = 0;
     int minuto = 0;
     int segundo = 0;
+    DateTime now = rtc8523.now();
 
-    if (time_ajuste)
-    { // Manual
-        /* RTC */
-        dia = rtc.getDay();
-        mes = rtc.getMonth() + 1;
-        anio = rtc.getYear();
-        hora = rtc.getHour(true);
-        minuto = rtc.getMinute();
-        segundo = rtc.getSecond();
-    }
-    else
-    { // Automatico
-        if ((WiFi.status() == WL_CONNECTED) && (wifi_mode == WIFI_STA))
-        {
-            /* NTP */
-            if (ntpClient.isTimeSet())
-            {
-                String formattedTime = ntpClient.getFormattedTime();
-                // FORMAR FECHA DD-MM-YYYY DESDE EPOCH
-                time_t epochTime = ntpClient.getEpochTime();
-                struct tm *now = gmtime((time_t *)&epochTime);
-                anio = now->tm_year + 1900;
-                mes = now->tm_mon + 1;
-                dia = now->tm_mday;
-                // 12:00:00
-                hora = ntpClient.getHours();
-                minuto = ntpClient.getMinutes();
-                segundo = ntpClient.getSeconds();
-            }
-        }
-        else
-        {
+    switch (time_ajuste) {
+
+        case 2:
+            // RTC PCF8523
+            
+            dia = now.day();
+            mes = now.month() + 1;
+            anio = now.year();
+            hora = now.hour();
+            minuto =now.minute();
+            segundo = now.second();
+        break;
+
+        case 1:
+            // Manual
             /* RTC */
             dia = rtc.getDay();
             mes = rtc.getMonth() + 1;
@@ -483,8 +500,43 @@ String getDateTime()
             hora = rtc.getHour(true);
             minuto = rtc.getMinute();
             segundo = rtc.getSecond();
-        }
+        break;
+
+        case 0:
+            // Automatico
+            if ((WiFi.status() == WL_CONNECTED) && (wifi_mode == WIFI_STA))
+            {
+                /* NTP */
+                if (ntpClient.isTimeSet())
+                {
+                    String formattedTime = ntpClient.getFormattedTime();
+                    // FORMAR FECHA DD-MM-YYYY DESDE EPOCH
+                    time_t epochTime = ntpClient.getEpochTime();
+                    struct tm *now = gmtime((time_t *)&epochTime);
+                    anio = now->tm_year + 1900;
+                    mes = now->tm_mon + 1;
+                    dia = now->tm_mday;
+                    // 12:00:00
+                    hora = ntpClient.getHours();
+                    minuto = ntpClient.getMinutes();
+                    segundo = ntpClient.getSeconds();
+                }
+            }
+            else
+            {
+               // DateTime now = rtc8523.now();
+                dia = now.day();
+                mes = now.month() + 1;
+                anio = now.year();
+                hora = now.hour();
+                minuto =now.minute();
+                segundo = now.second();
+            }
+
+        break;
+
     }
+   
     sprintf(fecha, "%.2d-%.2d-%.4d %.2d:%.2d:%.2d", dia, mes, anio, hora, minuto, segundo);
     return String(fecha);
 }

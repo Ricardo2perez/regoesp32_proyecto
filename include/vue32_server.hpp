@@ -806,7 +806,7 @@ void putRequestTime(AsyncWebServerRequest *request, uint8_t *data, size_t len, s
     // -------------------------------------------------------------------
     String s = "";
     // Manual - Internet true/false
-    time_ajuste = doc["time_ajuste"].as<bool>();
+    time_ajuste = doc["time_ajuste"].as<int>();
     // Fecha - Hora
     if (doc["time_date"] != "")
     {
@@ -1332,7 +1332,7 @@ void InitServer()
         json += "\"meta\": { \"serial\": \"" + deviceID() + "\"},";
         json += "\"data\":";
             json += "{";       
-                time_ajuste ? json += "\"time_ajuste\": true" : json += "\"time_ajuste\": false";
+                json += ",\"time_ajuste\": \""+ String(time_ajuste) + "\""; 
                 json += ",\"time_date\": \""+ String(time_date) + "\""; //2022-09-07T23:47
                 json += ",\"time_z_horaria\": \"" + String(time_z_horaria) + "\"";    
                 json += ",\"time_server\": \""+ String(time_server) + "\""; 

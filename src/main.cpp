@@ -199,6 +199,7 @@ void loop()
   // -------------------------------------------------------------------
   // Temperatura y Humedad
   // -------------------------------------------------------------------
+  
   if (millis() - ultimaLecturaDht > 5000)
   {
     ultimaLecturaDht = millis();
@@ -207,7 +208,7 @@ void loop()
     WsMessage(getJsonTemperature(), "", "");
     oledMuestraDatos();
   }
-
+ 
   //------------------------------------------------------------------
   // Cuando se produce un cambio de estado de una salida lo pasa
   // por websocket a la aplicación web

@@ -495,7 +495,7 @@ String getDateTime()
             // Manual
             /* RTC */
             dia = rtc.getDay();
-            mes = rtc.getMonth() + 1;
+            mes = rtc.getMonth();
             anio = rtc.getYear();
             hora = rtc.getHour(true);
             minuto = rtc.getMinute();

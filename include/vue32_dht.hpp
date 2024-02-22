@@ -1,7 +1,7 @@
 // vue32_dht.hpp
 
 /* -------------------------------------------------------------------
-   ReGo V4
+   ReGo V4 
      Programado por: ricardo2perez@gmail.com
      Proyecto hardware: https://github.com/xdesig/ReGo
  --------------------------------------------------------------------
@@ -45,48 +45,18 @@ String getJsonDht()
     int hs1 = 0; // variable para guardar lecturas sensores humedad suelo
     // Reading temperature or humidity takes about 250 milliseconds!
     // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-    float h = 0; // variable para medir la humedad ambiente
-    float t = 0; // variable para medir la temperatura ambiente en celsius
-    float f = 0; // variable para medir la temperatura ambiente en farenheit
-    try
-    {
-        h = dht.readHumidity();
-        h = round(h);
-    }
-    catch (String error)
-    {
-        Serial.println("error");
-        h = 22;
-    }
-
+    float h = dht.readHumidity();
+    h = round(h);
     // mete la humedad en una variable global
     HUM_AMB = h + HUM_AMB_OFFS;
     // Read temperature as Celsius (the default)
-    try
-    {
-        t = dht.readTemperature();
-        t = round(t);
-    }
-    catch (String error)
-    {
-        Serial.println("error temperatura celsius");
-        t = 0;
-    }
-
+    float t = dht.readTemperature();
+    t = round(t);
     // mete la temperatura en una variable global
     TEMP_AMB = t + TEMP_AMB_OFFS;
     // Read temperature as Fahrenheit (isFahrenheit = true)
-    try
-    {
-        f = dht.readTemperature(true);
-        f = round(f);
-    }
-    catch (String error)
-    {
-        Serial.println("error");
-        f = 0;
-    }
-
+    float f = dht.readTemperature(true);
+    f = round(f);
     // Check if any reads failed and exit early (to try again).
     if (isnan(h) || isnan(t) || isnan(f))
     {

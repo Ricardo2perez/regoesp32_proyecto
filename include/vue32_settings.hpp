@@ -220,7 +220,7 @@ void settingsReset()
     // -------------------------------------------------------------------
     // Time settings.json
     // -------------------------------------------------------------------
-    time_ajuste = 2;
+    time_ajuste = true;
     // Original strlcpy(time_date, "2022-09-22T00:00", sizeof(time_date));
     strlcpy(time_date, "2023-07-11T00:00", sizeof(time_date));
     // Original time_z_horaria = -14400;
